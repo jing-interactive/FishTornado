@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -102,9 +103,20 @@
   <ItemGroup />
   <ItemGroup>
     <ClCompile Include="..\src\FishTornadoApp.cpp" />
+    <ClCompile Include="..\src\Globals.cpp" />
+    <ClCompile Include="..\src\GpuFlocker.cpp" />
+    <ClCompile Include="..\src\Light.cpp" />
+    <ClCompile Include="..\src\Ocean.cpp" />
+    <ClCompile Include="..\src\Shark.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\FishTornadoApp.h" />
+    <ClInclude Include="..\include\Globals.h" />
+    <ClInclude Include="..\include\GpuFlocker.h" />
+    <ClInclude Include="..\include\Light.h" />
+    <ClInclude Include="..\include\Ocean.h" />
     <ClInclude Include="..\include\Resources.h" />
+    <ClInclude Include="..\include\Shark.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
