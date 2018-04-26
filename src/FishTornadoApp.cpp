@@ -126,13 +126,13 @@ void FishTornadoApp::setup()
 			uint32_t queueIndex = 1;
 			//auto secondaryCtx = vk::Context::createFromExisting( primaryCtx,  { { VK_QUEUE_GRAPHICS_BIT, queueIndex } } );
 			auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, VK_QUEUE_GRAPHICS_BIT );
-			mLightLoadThread = std::shared_ptr<std::thread>( new std::thread( [this, secondaryCtx, primaryCtx]() {
+			mLightLoadThread = std::make_shared<std::thread>([this, secondaryCtx, primaryCtx]() {
 				secondaryCtx->makeCurrent();
 				this->mLight = Light::create();
 				//secondaryCtx->transferTrackedObjects( primaryCtx );
 				this->mLightLoaded = true;
 				CI_LOG_I( "Light assets loaded" );
-			} ) );
+			} );
 		}
 
 		// Ocean
@@ -140,13 +140,13 @@ void FishTornadoApp::setup()
 			uint32_t queueIndex = 2;
 			//auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, { { VK_QUEUE_GRAPHICS_BIT, queueIndex } } );
 			auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, VK_QUEUE_GRAPHICS_BIT );
-			mOceanLoadThread = std::shared_ptr<std::thread>( new std::thread( [this,  secondaryCtx, primaryCtx]() {
+			mOceanLoadThread = std::make_shared<std::thread>([this,  secondaryCtx, primaryCtx]() {
 				secondaryCtx->makeCurrent();
 				this->mOcean = Ocean::create( this );
 				//secondaryCtx->transferTrackedObjects( primaryCtx );
 				this->mOceanLoaded = true;
 				CI_LOG_I( "Ocean assets loaded" );
-			} ) );
+			} );
 		}
 
 		// Shark
@@ -154,13 +154,13 @@ void FishTornadoApp::setup()
 			uint32_t queueIndex = 3;
 			//auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, { { VK_QUEUE_GRAPHICS_BIT, queueIndex } } );
 			auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, VK_QUEUE_GRAPHICS_BIT );
-			mSharkLoadThread = std::shared_ptr<std::thread>( new std::thread( [this,  secondaryCtx, primaryCtx]() {
+			mSharkLoadThread = std::make_shared<std::thread>([this,  secondaryCtx, primaryCtx]() {
 				secondaryCtx->makeCurrent();
 				this->mShark = Shark::create( this );
 				//secondaryCtx->transferTrackedObjects( primaryCtx );
 				this->mSharkLoaded = true;
 				CI_LOG_I( "Shark assets loaded" );
-			} ) );
+			} );
 		}
 	}
 	// There's at least 2 work queues but less than the number requested
@@ -173,7 +173,7 @@ void FishTornadoApp::setup()
 		uint32_t queueIndex = 1;
 		//auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, { { VK_QUEUE_GRAPHICS_BIT, queueIndex } } );
 		auto secondaryCtx = vk::Context::createFromExisting( primaryCtx, VK_QUEUE_GRAPHICS_BIT );
-		mLightLoadThread = std::shared_ptr<std::thread>( new std::thread( [this, secondaryCtx, primaryCtx]() {
+		mLightLoadThread = std::make_shared<std::thread>([this, secondaryCtx, primaryCtx]() {
 			secondaryCtx->makeCurrent();
 
 			// Light
@@ -199,7 +199,7 @@ void FishTornadoApp::setup()
 				this->mSharkLoaded = true;
 				CI_LOG_I( "Ocean assets loaded" );
 			}
-		} ) );
+		} ) ;
 	}
 	// Only 1 work queue
 	else {
