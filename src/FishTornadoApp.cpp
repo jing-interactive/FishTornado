@@ -577,6 +577,7 @@ void FishTornadoApp::generateCommandBuffer( const vk::CommandBufferRef& cmdBuf )
 
 void FishTornadoApp::draw()
 {
+    CI_LOG_I("Start draw");
 	// Semaphores
 	VkSemaphore imageAcquiredSemaphore = VK_NULL_HANDLE;
 	VkSemaphore renderingCompleteSemaphore = VK_NULL_HANDLE;
@@ -588,19 +589,23 @@ void FishTornadoApp::draw()
 	const auto& presenter = vk::context()->getPresenter();
 	uint32_t imageIndex = presenter->acquireNextImage( VK_NULL_HANDLE, imageAcquiredSemaphore );
 
+    CI_LOG_I("Build command buffer");
 	// Build command buffer
 	uint32_t frameIndex = (getElapsedFrames() + 1) % 2;
 	const auto& cmdBuf = mCommandBuffers[frameIndex];
 	//const auto& cmdBuf = vk::context()->getDefaultCommandBuffer();
 	generateCommandBuffer( cmdBuf );
 
+    CI_LOG_I("Submit command buffer for processing");
     // Submit command buffer for processing
 	const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	vk::context()->getGraphicsQueue()->submit( cmdBuf, imageAcquiredSemaphore, waitDstStageMask, VK_NULL_HANDLE, renderingCompleteSemaphore );
 
+    CI_LOG_I("Submit presentation");
 	// Submit presentation
 	vk::context()->getGraphicsQueue()->present( renderingCompleteSemaphore, presenter );
 
+    CI_LOG_I("Wait for work to be done");
 	// Wait for work to be done
 	vk::context()->getGraphicsQueue()->waitIdle();
 
