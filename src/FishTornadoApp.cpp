@@ -87,6 +87,8 @@ FishTornadoApp::~FishTornadoApp()
 
 void FishTornadoApp::setup()
 {
+    log::makeLogger<log::LoggerFile>();
+
 	mCamera	= CameraPersp();
 	mCamera.setPerspective( 45.0f, getWindowAspectRatio(), 1.0f, 10000.0f );
 	mCamera.lookAt( vec3( 135.312f, 64.086f, -265.332f ), vec3( 0.0f, 100.0f, 0.0f ) );
