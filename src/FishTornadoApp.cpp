@@ -285,25 +285,25 @@ void FishTornadoApp::setup()
 		vk::transitionToFirstUse( mMainColorTex, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
 
 		// Render pass
-		ci::vk::RenderPass::Options renderPassOptions = ci::vk::RenderPass::Options()
-			.addAttachment( ci::vk::RenderPass::Attachment( VK_FORMAT_R8G8B8A8_UNORM ).setSamples( sampleCount ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) )
-			.addAttachment( ci::vk::RenderPass::Attachment( VK_FORMAT_D16_UNORM ).setSamples( sampleCount ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ) )
-			.addAttachment( ci::vk::RenderPass::Attachment( VK_FORMAT_R8G8B8A8_UNORM ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
-		ci::vk::RenderPass::Subpass subpasses = ci::vk::RenderPass::Subpass()
+		vk::RenderPass::Options renderPassOptions = vk::RenderPass::Options()
+			.addAttachment( vk::RenderPass::Attachment( VK_FORMAT_R8G8B8A8_UNORM ).setSamples( sampleCount ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) )
+			.addAttachment( vk::RenderPass::Attachment( VK_FORMAT_D16_UNORM ).setSamples( sampleCount ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ) )
+			.addAttachment( vk::RenderPass::Attachment( VK_FORMAT_R8G8B8A8_UNORM ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
+		vk::RenderPass::Subpass subpasses = vk::RenderPass::Subpass()
 			.addColorAttachment( 0, 2 )
 			.addDepthStencilAttachment( 1 );
 		renderPassOptions.addSubPass( subpasses );
 		renderPassOptions.addSubpassSelfDependency( 0 );
-		mMainRenderPass = ci::vk::RenderPass::create( renderPassOptions );
+		mMainRenderPass = vk::RenderPass::create( renderPassOptions );
 
 		mMainRenderPass->setAttachmentClearValue( 0, { FOG_COLOR.r, FOG_COLOR.g, FOG_COLOR.b, 1.0 }  );
 
 		// Framebuffer
-		ci::vk::Framebuffer::Format framebufferFormat = ci::vk::Framebuffer::Format()
-			.addAttachment( ci::vk::Framebuffer::Attachment( VK_FORMAT_R8G8B8A8_UNORM, sampleCount ) )
-			.addAttachment( ci::vk::Framebuffer::Attachment( VK_FORMAT_D16_UNORM, sampleCount ) )
-			.addAttachment( ci::vk::Framebuffer::Attachment( mMainColorTex->getImageView() ) );
-		mMainFbo = ci::vk::Framebuffer::create( mMainRenderPass->getRenderPass(), getWindowSize(), framebufferFormat );
+		vk::Framebuffer::Format framebufferFormat = vk::Framebuffer::Format()
+			.addAttachment( vk::Framebuffer::Attachment( VK_FORMAT_R8G8B8A8_UNORM, sampleCount ) )
+			.addAttachment( vk::Framebuffer::Attachment( VK_FORMAT_D16_UNORM, sampleCount ) )
+			.addAttachment( vk::Framebuffer::Attachment( mMainColorTex->getImageView() ) );
+		mMainFbo = vk::Framebuffer::create( mMainRenderPass->getRenderPass(), getWindowSize(), framebufferFormat );
 	}
 	catch( const std::exception& e ) {
 		CI_LOG_E( "FBO ERROR: " << e.what() );
@@ -311,12 +311,12 @@ void FishTornadoApp::setup()
 
 	mMainRenderPass->setAttachmentClearValue( 0, { FOG_COLOR.r, FOG_COLOR.g, FOG_COLOR.b, 1.0f } );
 
-	geom::Rect rect = geom::Rect( getWindowBounds(), true ).texCoords( vec2( 0, 0 ), vec2( 1, 0 ), vec2( 1, 1 ), vec2( 0, 1 ) );
+	geom::Rect rect = geom::Rect( getWindowBounds()/*, true */).texCoords( vec2( 0, 0 ), vec2( 1, 0 ), vec2( 1, 1 ), vec2( 0, 1 ) );
 	mMainBatch = vk::Batch::create( rect, mMainShader );
 
 	vk::Texture::Format texFormat = vk::Texture::Format();
 	texFormat.setWrap( VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT );
-	mNoiseNormalsTex = vk::Texture::create( *ci::Surface::create( loadImage( loadAsset( "noiseNormals.png" ) ) ), texFormat );
+	mNoiseNormalsTex = vk::Texture::create( *Surface::create( loadImage( loadAsset( "noiseNormals.png" ) ) ), texFormat );
 	CI_LOG_I( "NoiseNormals texture created" );
 	
 	mBlend				= 0.9f;
@@ -449,7 +449,7 @@ void FishTornadoApp::update()
 	}
 }
 
-void FishTornadoApp::drawToDepthFbo( const ci::vk::CommandBufferRef& cmdBuf )
+void FishTornadoApp::drawToDepthFbo( const vk::CommandBufferRef& cmdBuf )
 {
 	vk::disableBlending();
 	if( ! mLightLoaded ) {
@@ -475,7 +475,7 @@ void FishTornadoApp::drawToDepthFbo( const ci::vk::CommandBufferRef& cmdBuf )
 	mLight->finishDraw();
 }
 
-void FishTornadoApp::drawToMainFbo( const ci::vk::CommandBufferRef& cmdBuf )
+void FishTornadoApp::drawToMainFbo( const vk::CommandBufferRef& cmdBuf )
 {
 	mMainRenderPass->beginRenderExplicit( cmdBuf, mMainFbo );
 	{
@@ -516,7 +516,7 @@ void FishTornadoApp::drawToMainFbo( const ci::vk::CommandBufferRef& cmdBuf )
 	mMainRenderPass->endRenderExplicit();
 }
 
-void FishTornadoApp::generateCommandBuffer( const ci::vk::CommandBufferRef& cmdBuf )
+void FishTornadoApp::generateCommandBuffer( const vk::CommandBufferRef& cmdBuf )
 {
 
 	cmdBuf->begin();

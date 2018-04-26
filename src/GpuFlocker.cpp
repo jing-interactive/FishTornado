@@ -93,25 +93,25 @@ GpuFlocker::GpuFlocker( FishTornadoApp *app )
 	mPositionTextures[1] = vk::Texture2d::create( FBO_RES, FBO_RES, texFormat );
 	mVelocityTextures[0] = vk::Texture2d::create( FBO_RES, FBO_RES, texFormat );
 	mVelocityTextures[1] = vk::Texture2d::create( FBO_RES, FBO_RES, texFormat );
-	ci::vk::transitionToFirstUse( mPositionTextures[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, ci::vk::context() );
-	ci::vk::transitionToFirstUse( mPositionTextures[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, ci::vk::context() );
-	ci::vk::transitionToFirstUse( mVelocityTextures[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, ci::vk::context() );
-	ci::vk::transitionToFirstUse( mVelocityTextures[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, ci::vk::context() );
+	vk::transitionToFirstUse( mPositionTextures[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mPositionTextures[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mVelocityTextures[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mVelocityTextures[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
 
 	for( size_t i = 0; i < 2; ++i ) {
-		ci::vk::RenderPass::Attachment attachment0 = ci::vk::RenderPass::Attachment( textureFormat )
+		vk::RenderPass::Attachment attachment0 = vk::RenderPass::Attachment( textureFormat )
 			.setInitialLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
 			.setFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-		ci::vk::RenderPass::Attachment attachment1 = ci::vk::RenderPass::Attachment( textureFormat )
+		vk::RenderPass::Attachment attachment1 = vk::RenderPass::Attachment( textureFormat )
 			.setInitialLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
 			.setFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-		auto renderPassOptions = ci::vk::RenderPass::Options()
+		auto renderPassOptions = vk::RenderPass::Options()
 			.addAttachment( attachment0 )	// color attachment 0
 			.addAttachment( attachment1 )	// color attachment 1
-			.addSubPass( ci::vk::RenderPass::Subpass().addColorAttachment( 0 ) )
-			.addSubPass( ci::vk::RenderPass::Subpass().addColorAttachment( 1 ).addPreserveAttachment( 0 ) );
+			.addSubPass( vk::RenderPass::Subpass().addColorAttachment( 0 ) )
+			.addSubPass( vk::RenderPass::Subpass().addColorAttachment( 1 ).addPreserveAttachment( 0 ) );
 
-		ci::vk::RenderPass::SubpassDependency spd = ci::vk::RenderPass::SubpassDependency( 0, 1 );
+		vk::RenderPass::SubpassDependency spd = vk::RenderPass::SubpassDependency( 0, 1 );
 		spd.setSrcStageMask( VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
 		spd.setDstStageMask( VK_PIPELINE_STAGE_VERTEX_INPUT_BIT  );
 		spd.setSrcAccessMask( VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT );
@@ -121,7 +121,7 @@ GpuFlocker::GpuFlocker( FishTornadoApp *app )
 		renderPassOptions.addSubpassSelfDependency( 0 );
 		renderPassOptions.addSubpassSelfDependency( 1 );
 
-		mRenderPasses[i] = ci::vk::RenderPass::create( renderPassOptions );
+		mRenderPasses[i] = vk::RenderPass::create( renderPassOptions );
 
 		vk::Framebuffer::Format framebufferFormat = vk::Framebuffer::Format()
 			.addAttachment( vk::Framebuffer::Attachment( mVelocityTextures[i]->getImageView() ) )
@@ -135,7 +135,7 @@ GpuFlocker::GpuFlocker( FishTornadoApp *app )
 	mMinSpeed			= 2.0f; //1.5
 	mMaxSpeed			= 6.0f;
 	
-	ci::Surface32f velSurf;
+	Surface32f velSurf;
 	setFboVelocities( mVelocityTextures[mThisFbo], mVelocityTextures[mPrevFbo], velSurf );
 	setFboPositions( mPositionTextures[mThisFbo], mPositionTextures[mPrevFbo], velSurf );
 	
@@ -225,7 +225,7 @@ GpuFlocker::GpuFlocker( FishTornadoApp *app )
 	// Models
 	{
 		// High res
-		ObjLoader loader = ObjLoader( loadFile( getAssetPath( "flocking/trevallie.obj" ) ),  ObjLoader::Options().flipV() );
+		ObjLoader loader = ObjLoader( loadFile( getAssetPath( "flocking/trevallie.obj" ) )/*,  ObjLoader::Options().flipV() */);
 		this->mHiResFishBatch = vk::Batch::create( loader, mRenderShader );
 		CI_LOG_I( "Trevallie (hires) created" );
 
@@ -257,7 +257,7 @@ int GpuFlocker::getNumFlockers()
 	return FBO_RES * FBO_RES;
 }
 
-void GpuFlocker::setFboPositions( const ci::vk::TextureRef& curTex, const ci::vk::TextureRef& prevTex, ci::Surface32f& velSurf )
+void GpuFlocker::setFboPositions( const vk::TextureRef& curTex, const vk::TextureRef& prevTex, Surface32f& velSurf )
 {
 	Surface32f surf = Surface32f( curTex->getWidth(), curTex->getHeight(), true );
 	Surface32f::Iter iter = surf.getIter();
@@ -290,7 +290,7 @@ void GpuFlocker::setFboPositions( const ci::vk::TextureRef& curTex, const ci::vk
 	prevTex->update( surf );
 }
 
-void GpuFlocker::setFboVelocities( const ci::vk::TextureRef& curTex, const ci::vk::TextureRef& prevTex, ci::Surface32f& surf )
+void GpuFlocker::setFboVelocities( const vk::TextureRef& curTex, const vk::TextureRef& prevTex, Surface32f& surf )
 {
 	int numFlockers			= ( FBO_RES * FBO_RES );
 	const float azimuth		= 64.0f * M_PI / (float)numFlockers;
@@ -421,7 +421,7 @@ void GpuFlocker::swapFbos()
 	std::swap( mThisFbo, mPrevFbo );
 }
 
-void GpuFlocker::beginSimRender( const ci::vk::CommandBufferRef& cmdBuf )
+void GpuFlocker::beginSimRender( const vk::CommandBufferRef& cmdBuf )
 {
 	mCommandBuffer = cmdBuf;
 	mRenderPasses[mThisFbo]->beginRenderExplicit( mCommandBuffer, mFbos[mThisFbo] );
@@ -438,7 +438,7 @@ void GpuFlocker::endSimRender()
 	mCommandBuffer.reset();
 }
 
-void GpuFlocker::processSimulation( const ci::vk::CommandBufferRef& cmdBuf )
+void GpuFlocker::processSimulation( const vk::CommandBufferRef& cmdBuf )
 {
 	vk::disableAlphaBlending();
 

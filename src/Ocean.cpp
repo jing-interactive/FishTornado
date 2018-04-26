@@ -83,9 +83,9 @@ Ocean::Ocean( FishTornadoApp *app )
 		mSurfaceNormalsTex = vk::Texture::create( texData, format );
 	}
 #else
-		mFloorDiffuseTex	= vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "ocean/floorDiffuseMap.png" ) ) ), format );
-		mFloorNormalsTex	= vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "ocean/floorNormalMap.png" ) ) ), format );
-		mSurfaceNormalsTex	= vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "ocean/surfaceNormal.png" ) ) ), format );
+		mFloorDiffuseTex	= vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "ocean/floorDiffuseMap.png" ) ) ), format );
+		mFloorNormalsTex	= vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "ocean/floorNormalMap.png" ) ) ), format );
+		mSurfaceNormalsTex	= vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "ocean/surfaceNormal.png" ) ) ), format );
 #endif
 		CI_LOG_I( "Ocean textures loaded" );
 	}
@@ -104,7 +104,7 @@ Ocean::Ocean( FishTornadoApp *app )
 		for( int i=0; i<32; i++ ) {
 			std::string num = toString( i );
 			if( num.length() == 1 ) num = "0" + num;
-			mCausticsTexs[i] = vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "ocean/caustics/save." + num + ".png" ) ) ), format );
+			mCausticsTexs[i] = vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "ocean/caustics/save." + num + ".png" ) ) ), format );
 			vk::transitionToFirstUse( mCausticsTexs[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vk::context() );
 		}
 		CI_LOG_I( "Caustic textures loaded" );
@@ -173,7 +173,7 @@ Ocean::Ocean( FishTornadoApp *app )
 	// Beam
 	{
 		try {
-			ObjLoader loader = ObjLoader( loadAsset( "ocean/beams.obj" ), ObjLoader::Options().flipV() );
+			ObjLoader loader = ObjLoader( loadAsset( "ocean/beams.obj" )/*, ObjLoader::Options().flipV() */);
 			mBeamsBatch1 = vk::Batch::create( loader, mBeamShader );
 			mBeamsBatch2 = vk::Batch::create( loader, mBeamShader );
 			CI_LOG_I( "BeamsBatch created" );

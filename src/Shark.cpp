@@ -75,7 +75,7 @@ Shark::Shark( FishTornadoApp *app )
 	
 	// Hi res
 	try {
-		ObjLoader loader( loadFile( app::getAssetPath( "shark/shark.obj" ) ), ObjLoader::Options().flipV() );
+		ObjLoader loader( loadFile( app::getAssetPath( "shark/shark.obj" ) )/*, ObjLoader::Options().flipV() */);
 		mHiResBatch	= vk::Batch::create( loader, mShader );
 	}
 	catch( const std::exception& e ) {
@@ -94,8 +94,8 @@ Shark::Shark( FishTornadoApp *app )
 	
 	// textures
 	vk::Texture::Format texFmt = vk::Texture::Format().mipmap();
-	mDiffuseTex	= vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "shark/sharkDiffuse.png" ) ) ), texFmt );
-	mNormalsTex	= vk::Texture::create( *ci::Surface::create( loadImage( app::loadAsset( "shark/sharkNormal.png"  ) ) ), texFmt );
+	mDiffuseTex	= vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "shark/sharkDiffuse.png" ) ) ), texFmt );
+	mNormalsTex	= vk::Texture::create( *Surface::create( loadImage( app::loadAsset( "shark/sharkNormal.png"  ) ) ), texFmt );
 }
 
 SharkRef Shark::create( FishTornadoApp *app ) 

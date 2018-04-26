@@ -76,7 +76,7 @@ Light::Light()
 	depthFormat.setWrap( VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE );
 	depthFormat.setCompareMode( VK_COMPARE_OP_LESS_OR_EQUAL );
 	mShadowMapTex = vk::Texture2d::create( shadowMapSize, shadowMapSize, depthFormat );
-	ci::vk::transitionToFirstUse( mShadowMapTex, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mShadowMapTex, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, vk::context() );
 
 	//VkFormat blurredInternalFormat = VK_FORMAT_R16_SFLOAT;
 	VkFormat blurredInternalFormat = VK_FORMAT_R16_SFLOAT;
@@ -85,30 +85,30 @@ Light::Light()
 	depthFormat.setUsageColorAttachment();
 	mBlurredShadowMapTex[0] = vk::Texture2d::create( shadowMapSize, shadowMapSize, depthFormat );
 	mBlurredShadowMapTex[1] = vk::Texture2d::create( shadowMapSize, shadowMapSize, depthFormat );
-	ci::vk::transitionToFirstUse( mBlurredShadowMapTex[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
-	ci::vk::transitionToFirstUse( mBlurredShadowMapTex[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mBlurredShadowMapTex[0], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
+	vk::transitionToFirstUse( mBlurredShadowMapTex[1], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::context() );
 	
 	// Render pass
 	try {			
-		ci::vk::RenderPass::Options renderPassOptions = ci::vk::RenderPass::Options();
+		vk::RenderPass::Options renderPassOptions = vk::RenderPass::Options();
 		// Attachments
-		renderPassOptions.addAttachment( ci::vk::RenderPass::Attachment( mShadowMapTex->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ) );
-		renderPassOptions.addAttachment( ci::vk::RenderPass::Attachment( mBlurredShadowMapTex[0]->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
-		renderPassOptions.addAttachment( ci::vk::RenderPass::Attachment( mBlurredShadowMapTex[1]->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
+		renderPassOptions.addAttachment( vk::RenderPass::Attachment( mShadowMapTex->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ) );
+		renderPassOptions.addAttachment( vk::RenderPass::Attachment( mBlurredShadowMapTex[0]->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
+		renderPassOptions.addAttachment( vk::RenderPass::Attachment( mBlurredShadowMapTex[1]->getFormat().getInternalFormat() ).setInitialAndFinalLayout( VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ) );
 		// Subpasses
-		renderPassOptions.addSubPass( ci::vk::RenderPass::Subpass().addDepthStencilAttachment( 0 ) );
-		renderPassOptions.addSubPass( ci::vk::RenderPass::Subpass().addColorAttachment( 1 ).addPreserveAttachment( 0 ) );
-		renderPassOptions.addSubPass( ci::vk::RenderPass::Subpass().addColorAttachment( 2 ).addPreserveAttachment( 1 ) );
+		renderPassOptions.addSubPass( vk::RenderPass::Subpass().addDepthStencilAttachment( 0 ) );
+		renderPassOptions.addSubPass( vk::RenderPass::Subpass().addColorAttachment( 1 ).addPreserveAttachment( 0 ) );
+		renderPassOptions.addSubPass( vk::RenderPass::Subpass().addColorAttachment( 2 ).addPreserveAttachment( 1 ) );
 		// Subpass dependencies
 		{
-			ci::vk::RenderPass::SubpassDependency spd1 = ci::vk::RenderPass::SubpassDependency( 0, 1 );
+			vk::RenderPass::SubpassDependency spd1 = vk::RenderPass::SubpassDependency( 0, 1 );
 			spd1.setSrcStageMask( VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT );
 			spd1.setDstStageMask( VK_PIPELINE_STAGE_VERTEX_INPUT_BIT );
 			spd1.setSrcAccessMask( VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT );
 			spd1.setDstAccessMask( VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT );
 			renderPassOptions.addSubpassDependency( spd1 );
 
-			ci::vk::RenderPass::SubpassDependency spd2 = ci::vk::RenderPass::SubpassDependency( 1, 2 );
+			vk::RenderPass::SubpassDependency spd2 = vk::RenderPass::SubpassDependency( 1, 2 );
 			spd2.setSrcStageMask( VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT );
 			spd2.setDstStageMask( VK_PIPELINE_STAGE_VERTEX_INPUT_BIT );
 			spd2.setSrcAccessMask( VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT );
@@ -120,15 +120,15 @@ Light::Light()
 		renderPassOptions.addSubpassSelfDependency( 1 );
 		renderPassOptions.addSubpassSelfDependency( 2 );
 		// Create render pass
-		mShadowMapRenderPass = ci::vk::RenderPass::create( renderPassOptions );
+		mShadowMapRenderPass = vk::RenderPass::create( renderPassOptions );
 		mShadowMapRenderPass->setAttachmentClearValue( 1, { 0.0f, 0.0f, 0.0f, 0.0f } );
 		mShadowMapRenderPass->setAttachmentClearValue( 2, { 0.0f, 0.0f, 0.0f, 0.0f } );
 		// Framebuffer
-		ci::vk::Framebuffer::Format framebufferFormat = ci::vk::Framebuffer::Format();
-		framebufferFormat.addAttachment( ci::vk::Framebuffer::Attachment( mShadowMapTex->getImageView() ) );
-		framebufferFormat.addAttachment( ci::vk::Framebuffer::Attachment( mBlurredShadowMapTex[0]->getImageView() ) );
-		framebufferFormat.addAttachment( ci::vk::Framebuffer::Attachment( mBlurredShadowMapTex[1]->getImageView() ) );
-		mShadowMapFbo = ci::vk::Framebuffer::create( mShadowMapRenderPass->getRenderPass(), mShadowMapTex->getSize(), framebufferFormat );
+		vk::Framebuffer::Format framebufferFormat = vk::Framebuffer::Format();
+		framebufferFormat.addAttachment( vk::Framebuffer::Attachment( mShadowMapTex->getImageView() ) );
+		framebufferFormat.addAttachment( vk::Framebuffer::Attachment( mBlurredShadowMapTex[0]->getImageView() ) );
+		framebufferFormat.addAttachment( vk::Framebuffer::Attachment( mBlurredShadowMapTex[1]->getImageView() ) );
+		mShadowMapFbo = vk::Framebuffer::create( mShadowMapRenderPass->getRenderPass(), mShadowMapTex->getSize(), framebufferFormat );
 	}
 	catch( const std::exception& e ) {
 		ci::app::console() << "FBO ERROR: " << e.what() << std::endl;
@@ -180,12 +180,12 @@ LightRef Light::create()
 	return LightRef( new Light() );
 }
 
-const ci::vk::TextureRef& Light::getTexture() const
+const vk::TextureRef& Light::getTexture() const
 {
 	return mShadowMapTex;
 }
 
-const ci::vk::TextureRef& Light::getBlurredTexture() const
+const vk::TextureRef& Light::getBlurredTexture() const
 {
 	return mBlurredShadowMapTex[1];
 }
@@ -196,7 +196,7 @@ ci::mat4 Light::getBiasedViewProjection() const
 	return mBiasMatrix * ( flipY*mCam.getProjectionMatrix() * mCam.getViewMatrix() );
 }
 
-const ci::vk::RenderPassRef& Light::getRenderPass()
+const vk::RenderPassRef& Light::getRenderPass()
 {
 	return mShadowMapRenderPass;
 }
@@ -206,7 +206,7 @@ void Light::update( float time, float dt )
 	mCam.lookAt( vec3( mPos ), mCenter );
 }
 
-void Light::prepareDraw( const ci::vk::CommandBufferRef& cmdBuf )
+void Light::prepareDraw( const vk::CommandBufferRef& cmdBuf )
 {	
 	vk::ImageMemoryBarrierParams barrierParams = vk::ImageMemoryBarrierParams( mShadowMapTex->getImageView()->getImage(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT );
 	cmdBuf->pipelineBarrierImageMemory( barrierParams );
