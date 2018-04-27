@@ -134,6 +134,7 @@ private:
 	bool					mDrawParams;
 	bool					mDrawShark;
 	bool					mDrawOcean;
+    bool                    mDrawFlocker;
 
 	ci::vk::CommandBufferRef	mCommandBuffers[2];
 };
